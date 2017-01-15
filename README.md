@@ -3,7 +3,7 @@
 	├── demo_usr_bpl_fpl_tpl        // Demo for showing user TPL/BPL/FPL
 	├── demo_usr_counts_poi_time    // Demo for showing the number of users changing during a period time
 	├── demo_usrs_tpl_histogram     // Demo for Users TPL Histogram
-	├── lib				// Libraries for running TPL Demo Java Program
+	├──lib 							// Libraries for running TPL Demo Java Program
 	└── src
 		└── tpl_demo
 			├── MarkovChain.java        // a class for representing MarkovChain
