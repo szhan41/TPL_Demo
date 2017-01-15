@@ -14,6 +14,7 @@
 First, run the java program tpl_demo, after the execution, there are outputs in the csv folder.
 Then, run each demos, the demo needs to read csvdata files in order to generating the graph.
 
-Related paper(s): 
-Yang Cao, Masatoshi Yoshikawa, Yonghui Xiao and Li Xiong, "Quantifying Differential Privacy under Temporal Correlations," The 33rd IEEE International Conference on Data Engineering (ICDE2017), April, 2017.
+Related paper(s):
+
+	Yang Cao, Masatoshi Yoshikawa, Yonghui Xiao and Li Xiong, "Quantifying Differential Privacy under Temporal Correlations," The 33rd IEEE International Conference on Data Engineering (ICDE2017), April, 2017.
 
