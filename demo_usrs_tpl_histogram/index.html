@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Users TPL Histogram Demo</title>
+        <meta charset="utf-8">
+        <!-- 引入 d3 -->
+        <script src="https://d3js.org/d3.v4.min.js"></script> 
+        <!-- 引入 Echarts v3.0 -->
+        <script src="js/echarts.min.js"></script>
+        <!-- 引入主题 -->
+        <script src="theme/infographic.js"></script>
+	</head>
+
+	<body>
+        <div id="main" style="width: 800px;height:600px;">      
+	</body>
+</html>
+
+<script type="text/javascript">
+    d3.csv("csv/users.csv", function(data) {
+        var tpl_list = d3.nest()
+            .key(function(d) { return d.tpl; })
+            .sortKeys(function(a, b){
+                return parseFloat(a) - parseFloat(b);
+            })
+            .rollup(function(d) { return d.length; })
+            .entries(data);
+                
+        var amount = [];
+        var item = [];
+        tpl_list.forEach(function(d){
+            item.push(d.key);
+            amount.push(d.value);
+        });
+              
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'), "infographic.js");
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: 'Users TPL Histogram Demo'
+            },    
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            xAxis: {
+                name: 'TPL', //'Temporal Privacy Leakage',
+                data: item
+            },
+            yAxis: {
+                name: 'The Amount of Users',
+                type: 'value',
+                axisLabel: {
+//                    formatter: '{value}%',
+                }
+            },
+            series: [{
+                name: 'Users',
+                type: 'bar',
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'top'
+                    }
+                },
+//                itemStyle:{
+//				    normal:{
+//				        color: function(d){
+//                            return "#"+Math.floor(Math.random()*(256*256*256-1)).toString(16);
+//                        }
+//				    }
+//				},
+                data: amount
+            }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    });
+</script>
+
+

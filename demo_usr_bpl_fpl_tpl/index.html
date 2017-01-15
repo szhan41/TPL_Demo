@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>User Temporal Privacy Leakage Demo</title>
+        <meta charset="utf-8">
+        <!-- 引入 d3 -->
+        <script src="https://d3js.org/d3.v4.min.js"></script> 
+        <!-- 引入 Echarts v3.0 -->
+        <script src="js/echarts.min.js"></script>
+        <!-- 引入主题 -->
+        <script src="theme/infographic.js"></script>
+	</head>
+
+	<body>
+        <div id="main" style="width: 800px; height:600px;">      
+	</body>
+</html>
+
+<script type="text/javascript">
+    
+    // 2008-02-02 13:30 to 2008-02-08 17:39
+    d3.queue()
+      .defer(d3.csv, "csv/tpl.csv")
+      .await(analyze);
+
+    function analyze(error, data) {
+        if(error) { console.log(error); }
+        var now = +new Date();
+        var oneMinute = 60 * 1000;
+        var time_all = [];
+        var bpl_all = [];
+        var fpl_all = [];
+        var tpl_all = [];
+        data.forEach(function(d){
+            time_all.push(nextMinute());
+            bpl_all.push(+d.bpl);
+            fpl_all.push(+d.fpl);
+            tpl_all.push(+d.tpl);
+        });
+        
+        function nextMinute() {
+            now = new Date(+now + oneMinute);
+            return [now.getHours(), now.getMinutes()].join(":");
+        }
+        
+        var width = 0;
+        var time = [];
+        var bpl = [];
+        var fpl = [];
+        var tpl = [];
+        for (var i = 0; i < 10; i++) {
+            width++;
+            time.push(time_all[i]);
+            bpl.push(bpl_all[i]);
+            fpl.push(fpl_all[i]);
+            tpl.push(tpl_all[i]);
+        }
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'), "infographic.js");
+        
+        var option = {
+            title: {
+                text: 'User\'s Temporal Privacy Leakage',
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    animation: false,
+                    lineStyle: {
+                        width: 1,
+                        opacity: 1
+                    }
+                }
+            },
+            legend: {
+                data: ['BPL', 'FPL', 'TPL']
+            }, 
+            xAxis: {
+                name: 'Time',
+                type: 'category',
+                data: time
+            },   
+            yAxis: {
+                name: 'Privacy Leakage',
+                type: 'value'
+            },
+            series: [
+                {
+                    name: 'BPL',
+                    type: 'line',
+                    data: bpl
+                },
+                {
+                    name: 'FPL',
+                    type: 'line',
+                    data: fpl
+                },
+                {
+                    name: 'TPL',
+                    type: 'line',
+                    data: tpl
+                }
+            ]
+        };
+        
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+        var auto_run = setInterval(function(){ timerRun() }, 1000);
+    
+function timerRun() {
+//    time.shift();
+    time.push(time_all[width]);
+    
+//    bpl.shift();
+    bpl.push(bpl_all[width]);
+    
+//    fpl.shift();
+    fpl.push(fpl_all[width]);
+    
+//    tpl.shift();
+    tpl.push(tpl_all[width]);
+    
+    myChart.setOption({
+        xAxis: [{
+            data: time
+        }],
+        series: [
+            {
+                name: 'BPL',
+                type: 'line',
+                data: bpl
+            },
+            {
+                name: 'FPL',
+                type: 'line',
+                data: fpl
+            },
+            {
+                name: 'TPL',
+                type: 'line',
+                data: tpl
+            }
+        ]
+    });
+    
+    width++;
+    if (width == time_all.length) {
+       clearInterval(auto_run); 
+    } 
+}
+    } // analyze
+    
+//    d3.csv("csv/tpl.csv", function(data) {
+//        var time = [];
+//        var bpl = [];
+//        var fpl = [];
+//        var tpl = [];
+//        data.forEach(function(d){
+//            time.push(d.time);
+//            bpl.push(+d.bpl);
+//            fpl.push(+d.fpl);
+//            tpl.push(+d.tpl);
+//        });
+//        // 基于准备好的dom，初始化echarts实例
+//        var myChart = echarts.init(document.getElementById('main'), "infographic.js");
+//
+//        var option = {
+//            title: {
+//                text: 'User\'s Temporal Privacy Leakage',
+//            },
+//            tooltip: {
+//                trigger: 'item'
+//            },
+//            legend: {
+//                data: ['BPL', 'FPL', 'TPL']
+//            }, 
+//            xAxis: {
+//                name: 'Time',
+//                type: 'category',
+//                data: time
+//            },   
+//            yAxis: {
+//                name: 'Privacy Leakage',
+//                type: 'value'
+//            },
+//            series: [
+//                {
+//                    name: 'BPL',
+//                    type: 'line',
+//                    data: bpl
+//                },
+//                {
+//                    name: 'FPL',
+//                    type: 'line',
+//                    data: fpl
+//                },
+//                {
+//                    name: 'TPL',
+//                    type: 'line',
+//                    data: tpl
+//                }
+//            ]
+//        };
+//        
+//        // 使用刚指定的配置项和数据显示图表。
+//        myChart.setOption(option);
+//        
+//var auto_run = setInterval(function(){ timerRun() }, 1000);
+//    
+//function timerRun() {
+//    for (var j = 0; j < 1; j++) {
+//        var newitem = randomData();
+//        data.shift();
+//        data.push(newitem);
+//        x.shift();
+//        x.push(newitem.value[0]);
+//    }
+//
+//    myChart.setOption({
+//        series: [
+//                {
+//                    name: 'BPL',
+//                    type: 'line',
+//                    data: bpl
+//                },
+//                {
+//                    name: 'FPL',
+//                    type: 'line',
+//                    data: fpl
+//                },
+//                {
+//                    name: 'TPL',
+//                    type: 'line',
+//                    data: tpl
+//                }
+//        ],
+//        xAxis: [{
+//            data: time
+//        }]
+//    });
+//    
+//    if (width == 100) {
+//       clearInterval(auto_run); 
+//    } 
+//}
+//        
+//    });
+</script>
+

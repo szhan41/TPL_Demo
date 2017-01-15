@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Counts Histogram Demo</title>
+        <meta charset="utf-8">
+        <!-- 引入 d3 -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- 引入 Echarts v3.0 -->
+        <script src="js/echarts.min.js"></script>
+        <!-- 引入主题 -->
+        <script src="theme/infographic.js"></script>
+	</head>
+
+	<body>
+        <div id="main" style="width: 800px;height:600px;">      
+	</body>
+</html>
+
+<script type="text/javascript">
+    d3.csv("csv/count.csv", function(data) {
+
+        var list = d3.nest()
+            .key(function(d) { return d.timestamp; })
+            .key(function(d) { return d.poi_id; })
+            .map(data).values();
+                  
+        var time_list = d3.nest()
+            .key(function(d) { return d.timestamp; })
+            .map(data).keys();
+
+        var poi_list = d3.nest()
+            .key(function(d) { return d.poi_id; })
+            .map(data).keys().sort(function(a, b){
+                return parseInt(a) - parseInt(b);
+            });
+
+//        console.log(time_list);
+//        console.log(poi_list);
+
+
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'), "infographic.js");
+
+        // 指定图表的配置项和数据
+        var option = {
+            baseOption: { 
+                timeline: {
+                    bottom: -20,
+                    axisType: 'category',
+                    realtime: false,
+                    autoPlay: true,
+                    playInterval: 3000,
+                    symbolSize: 5,
+                    lineStyle: {
+                        width: 18
+                    },
+                    data: time_list
+                },
+                legend: {
+                    data: ['Original', 'Eps=0.1', 'Eps=0.5', 'Eps=0.9'],
+                    selected: {
+                        'Eps=0.1': false, 'Eps=0.5': false, 'Eps=0.9': false
+                    }
+                },
+                title: {
+                    text: 'Counts Histogram Demo'
+                },    
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                xAxis: {
+                        name: 'POI',
+                        data: poi_list
+                },
+                yAxis: {
+                        name: 'The Amount of Users',
+                        type: 'value',
+                        axisLabel: {
+        //                    formatter: '{value}%',
+                        }
+                },
+                series: [
+                    { name: 'Original', type: 'bar', 
+                        label: { normal: {show: true, position: 'top'} },
+                    },
+                    { name: 'Eps=0.9', type: 'line', 
+                        label: { normal: {show: true, position: 'top'} },
+                    },
+                    { name: 'Eps=0.5', type: 'line', 
+                        label: { normal: {show: true, position: 'top'} },
+                    },
+                    { name: 'Eps=0.1', type: 'line', 
+                        label: { normal: {show: true, position: 'top'} },
+                    }
+                ]
+            },
+            options: []
+        };
+        
+        for (var i=0; i<list.length; i++) {
+            var poi = list[i].keys();
+            var tmp = list[i].values().reduce( (a, b) => a.concat(b), [] );
+            var count = [];
+            var noisy1 = [];
+            var noisy2 = [];
+            var noisy3 = [];
+            tmp.forEach(function(d){
+                count.push(+d.uid_counts);
+                noisy1.push(+d.noise_counts_1);
+                noisy2.push(+d.noise_counts_2);
+                noisy3.push(+d.noise_counts_3);
+            });
+            console.log(count);
+            var op = {series: [{data: count},{data: noisy3},{data: noisy2},{data: noisy1}]};
+            option.options.push(op); 
+        }
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    });
+</script>
+
+
